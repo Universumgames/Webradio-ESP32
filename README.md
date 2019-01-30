@@ -2,8 +2,9 @@ Webradio-ESP32
 ==============
 
 First of all, this project is not finished, I have some problems getting the
-VS1053/1003 running.... If I get this project finished, this is a very simple
-webradio-player for everyone.
+VS1053/1003 running.... Mybe you can help me... XD
+If I get this project finished, this is a very simple
+webradio-player with the ESP32 and the VS1003/1053 for everyone.
 
 Getting started
 ===============
