@@ -40,7 +40,7 @@ class MP3Decoder
 
     void begin()
     {
-        settings = SPISettings(12288000, MSBFIRST, SPI_MODE0);
+        settings = SPISettings(12288000, LSBFIRST, SPI_MODE0);
         //define GPIO´s
         pinMode(dreq, INPUT_PULLUP);
         pinMode(rst, OUTPUT);
@@ -53,6 +53,11 @@ class MP3Decoder
 
         //begin SPI
         SPI.begin(sck, miso, mosi, cs);
+        SPI.setBitOrder(settings._bitOrder);
+        SPI.setFrequency(settings._clock);
+        SPI.setDataMode(settings._dataMode);
+        //SPI.setClockDivider(0);
+        SPI.setHwCs();
     }
 
     void hardReset()
