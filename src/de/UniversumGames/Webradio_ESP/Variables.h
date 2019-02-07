@@ -3,8 +3,8 @@
 
 #include <Arduino.h>
 
-extern const char *ssid = "yourSSID";
-extern const char *password = "yourPASSWORD";
+extern const char *SSID = "yourSSID";
+extern const char *PASSWORD = "yourPASSWORD";
 
 extern bool next_Buton = false;
 extern bool previous = false;

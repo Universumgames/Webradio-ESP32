@@ -9,22 +9,22 @@
 * If you have issues with this project, you can probably report an issue on GitHub
 */
 
-#include <Arduino.h>
-#include <Wifi.h>
+#include <WiFi.h>
 #include <WiFiMulti.h>
 //#include <VS103.h>
 #include "RadioStation.h"
 #include "RadioType.h"
 #include "Variables.h"
 #include <SPI.h>
-#include "ESPVS1003.h"
+//#include "ESPVS1003.h"
 #include "MP3Decoder.h"
+#include "WiFiVariables.h"
 
 
 //#define PCStreamerStreamFileURL "192.168.178.28/"               //if you have a programm wich provides a m3u(8) playlist in your network, define here the URL
 //#define PCStreamerStreamType M3U8
-#define ssid1 Variables::ssid                                      //your ssid
-#define pass1 Variables::password                                  //your password
+#define ssid1 WiFiVariables::ssid                                      //your ssid
+#define pass1 WiFiVariables::password                                  //your password
 
 //#define USE_BUTTON_INTERRUPTS                                   //if you want to use buttons/etc. as interrupt
 #define SerialUSE                                               //if you want a serial output
@@ -32,13 +32,13 @@
 //#define USE_VS1003
 #define USE_MP3Decoder
 #define VS1003_DCS 4
-#define VS1003_DREQ 34
-#define VS1003_CS SS //5
+#define VS1003_DREQ 32
+#define VS1003_CS 15 //5
 #define VS1003_RST 25
 #define SPI_CS VS1003_CS
-#define SPI_SCK SCK   //22
-#define SPI_MISO MISO //23
-#define SPI_MOSI MOSI //27
+#define SPI_SCK 14   //14
+#define SPI_MISO 12 //12
+#define SPI_MOSI 13 //13
 MP3Decoder decoder(SPI_MISO, SPI_MOSI, SPI_CS, SPI_SCK, VS1003_DCS, VS1003_DREQ, VS1003_RST);
 #ifdef MP3Decoder
 
@@ -76,6 +76,7 @@ RadioStation EinsLive(
     //"62.27.60.49/wdr/1live/live/mp3/128/stream.mp3"
     ,
     MP3Stream, &decoder);
+    
 #ifdef PCStreamerStreamFileURL 
   #ifdef PCStreamerStreamType
     RadioStation PC(String(PCStreamerStreamFileURL), PCStreamerStreamType, &player);
@@ -244,6 +245,7 @@ void playSegment(){
         decoder.testConnection();
   #endif
 
+#pragma region 
   #ifdef USE_VS1003
     #ifdef SerialUSE
       USE_Serial.println("Configure everything for VS1003");
@@ -317,26 +319,29 @@ void playSegment(){
       #endif
     }
 #endif
-    //connectToStation(0);
+
+#pragma endregion
+
+    connectToStation(0);
 
   #ifdef USE_Serial
     USE_Serial.println("Start Threading");
   #endif
-  /*xTaskCreatePinnedToCore(
+  xTaskCreatePinnedToCore(
     looop,
     "Buffering",
     1000,
     NULL,
     1,
     &core0,
-    0);*/
+    0);
 }
 
 //ESP32 Core 1 loop
 void loop()
 {
   //if (wifiMulti.run() == WL_CONNECTED)
- /* if(WiFi.status() == WL_CONNECTED)
+  if(WiFi.status() == WL_CONNECTED)
   {
     #ifdef USE_Serial
       //USE_Serial.println("WiFi connected");
@@ -380,7 +385,7 @@ void loop()
   }
 
   #ifdef SerialUSE
-    //USE_Serial.println("Currently playing station " + String(currentStationID));
-  #endif*/
+    USE_Serial.println("Currently playing station " + String(currentStationID));
+  #endif
 }
 
