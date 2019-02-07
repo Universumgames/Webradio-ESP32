@@ -32,13 +32,13 @@
 //#define USE_VS1003
 #define USE_MP3Decoder
 #define VS1003_DCS 4
-#define VS1003_DREQ 34
-#define VS1003_CS SS //5
+#define VS1003_DREQ 32
+#define VS1003_CS 15 //5
 #define VS1003_RST 25
 #define SPI_CS VS1003_CS
-#define SPI_SCK SCK   //22
-#define SPI_MISO MISO //23
-#define SPI_MOSI MOSI //27
+#define SPI_SCK 14   //14
+#define SPI_MISO 12 //12
+#define SPI_MOSI 13 //13
 MP3Decoder decoder(SPI_MISO, SPI_MOSI, SPI_CS, SPI_SCK, VS1003_DCS, VS1003_DREQ, VS1003_RST);
 #ifdef MP3Decoder
 
