@@ -338,3 +338,4 @@ src/*
 !de
 platformio.ini
 WiFiVariables.h
+.piolibdeps
