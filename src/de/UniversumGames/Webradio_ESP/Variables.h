@@ -3,14 +3,14 @@
 
 #include <Arduino.h>
 
-extern const char *SSID = "yourSSID";
-extern const char *PASSWORD = "yourPASSWORD";
+const char *SSID = "yourSSID";
+const char *PASSWORD = "yourPASSWORD";
 
-extern bool next_Buton = false;
-extern bool previous = false;
-extern bool play_pause = false;
-extern bool volumeUP = false;
-extern bool volumeDOWN = false;
+bool next_Buton = false;
+bool previous = false;
+bool play_pause = false;
+bool volumeUP = false;
+bool volumeDOWN = false;
 
 extern bool any()
 {

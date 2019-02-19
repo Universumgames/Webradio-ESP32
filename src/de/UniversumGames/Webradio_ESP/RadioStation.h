@@ -117,7 +117,7 @@ class RadioStation{
                 //     Serial.print(mp3buff[i]);
                 //}
             }*/
-            uint8_t prefix[] = { 0b00000010, 0x5};
+            //uint8_t prefix[] = { 0b00000010, 0x5};
 
             while (client.connected() && (len > 0 || len == -1) && playBool && connected)
             {

@@ -9,6 +9,7 @@
 * If you have issues with this project, you can probably report an issue on GitHub
 */
 
+#include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiMulti.h>
 //#include <VS103.h>

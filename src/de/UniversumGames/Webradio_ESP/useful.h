@@ -32,13 +32,13 @@ class useful{
             return counter;
         }
 
-        static byte bitToByte(bool bits[8]){
+        /*static byte bitToByte(bool bits[8]){
             byte dataByte;
             for(int i = 0; i < 8; i++){
-                dataByte |= bits[i];
+                dataByte = bits[i];
             }
             return dataByte;
-        }
+        }*/
 };
 
 #endif
