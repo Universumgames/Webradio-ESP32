@@ -6,14 +6,14 @@
 #include <HTTPClient.h>
 #include <WiFiClient.h>
 #include <WiFi.h>
-//#include <VS1053.h>
-#include "ESPVS1003.h"
+#include <VS1053.h>
 #include <SPI.h>
 #include "Queue.h"
 #include "Song.h"
 #include "Variables.h"
 #include "useful.h"
 #include "MP3Decoder.h"
+#include "URL.h"
 
 //#define TestWithoutVS1053
 
@@ -25,26 +25,24 @@ class RadioStation{
             player = player1;
         }*/
 
-        RadioStation(String url1, RadioType type1, MP3Decoder *decoder1)
+        RadioStation(URL url1, RadioType type1, MP3Decoder *decoder1)
         {
-            url = url1;
+            url = &url1;
             type = type1;
             decoder = decoder1;
         }
 
         void connect(){
-            //player->startSong();
             if(type == MP3Stream){
                 initMP3Stream();
             }else if (type == M3U8){
-                get_m3u8_master();
+                //get_m3u8_master();
             }
             connected = true;
         }
 
         void disconnect(){
             if(connected){
-                client.end();
                 if(type == MP3Stream) {
                 }else if(type == M3U8){
 
@@ -56,19 +54,11 @@ class RadioStation{
 
         void play(){
             playBool = true;
-            //if(player->isChipConnected()){
             if(type == MP3Stream){
-                //Serial.println("MP3Stream");
                 playMP3Stream();
             }else if(type == M3U8){
-                //Serial.println("M3U8");
-                getNewM3U8Packet();
+                //getNewM3U8Packet();
             }
-            //}else{
-            //    Serial.println("Chip not connected");
-            //    delay(2000);
-            //}
-            decoder->loop();
         }
 
         void pause(){
@@ -79,7 +69,7 @@ class RadioStation{
             return type;
         }
 
-        void buffering()
+        /*void buffering()
         {
             if(type == M3U8){
                 if (tsPlaylist->getSize() <= 5){
@@ -87,64 +77,44 @@ class RadioStation{
                 }
                 downloadBuffer();
             }
-        }
+        }*/
 
       private:
         bool playBool = true;
         bool connected = false;
-        VS1003 *player;
         MP3Decoder *decoder;
+        URL *url;
         //MP3 Stream
-        String url;
+        
         RadioType type;
-        HTTPClient client;
-        uint8_t buffer[32];
-        WiFiClient *stream;
-        int len;
-        uint8_t buff[16] = {0};
+        WiFiClient client;
         void initMP3Stream(){
-            client.begin(url);
-            stream = client.getStreamPtr();
+            const int length = url->host.length();
+            char array[length];
+            url->host.toCharArray(array, length);
+            if(client.connect(array, url->port)){
+                connected = true;
+                Serial.println("Connected to " + String(url->host));
+            }
+            client.print(String("GET ") + url->path + " HTTP/1.1\r\n" +
+               "Host: " + String(url->host) + "\r\n" + 
+               "Connection: close\r\n\r\n");
         }
 
         void playMP3Stream(){
-            /*uint8_t mp3buff[32];
-            if (stream->available() > 0)
+
+            while (playBool && connected)
             {
-                uint8_t bytesread = stream->readBytes(mp3buff, 32);
-                player->playChunk(mp3buff, bytesread);
-                //for(int i = 0; i < 32; i++){
-                //     Serial.print(mp3buff[i]);
-                //}
-            }*/
-            //uint8_t prefix[] = { 0b00000010, 0x5};
-
-            while (client.connected() && (len > 0 || len == -1) && playBool && connected)
-            {
-                size_t size = stream->available();
-               // uint8_t dlBuffer[2];
-
-                if(size){
-                    int c = stream->readBytes(buff, sizeof(buff));
-
-                    if(len > 0) len -= c;
-                    //for(int i = 0; i < c; i++){
-                    //    Serial.print(buff[i]);
-                    //} 
-                    //uint8_t send[4] = {prefix[0], prefix[1], dlBuffer[0], dlBuffer[1]};
-                #ifndef TestWithoutVS1053
-                    //player->playChunk(send, 4);
-                #endif
-                    decoder->playChunk(buff, 16);
-                }
-                
-               
+                uint8_t buffer[32];
+               if(client.available() > 0){
+                   uint8_t read = client.read(buffer, 32);
+                   decoder->play(buffer, read);
+               }
             }
-            initMP3Stream();
         }
 
     //M3U8 playlist "Stream"
-        String master_m3u8[];
+        /*String master_m3u8[];
         String ts_playlist_Link;
         Queue<String> *tsPlaylist;
         Queue<Song> *songbuffer;
@@ -162,12 +132,7 @@ class RadioStation{
             }
             String *sep[useful::countChar(m3u8, '\n')];
             useful::split(m3u8, '\n', sep);
-            //baudrate change
-            /*
-            a = 0;
-            for(int i = 0; i < sizeof(master_m3u8); i++){
-                
-            }*/
+           
             ts_playlist_Link = master_m3u8[2];
             client.end();
             getTSPlaylist();
@@ -241,6 +206,6 @@ class RadioStation{
             #ifndef TestWithoutVS1053
                 player->playChunk(data, 32);
             #endif
-        }
+        }*/
 };
 #endif
