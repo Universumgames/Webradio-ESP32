@@ -4,14 +4,24 @@
 #include <Arduino.h>
 #include "URL.h"
 #include <VS1053.h>
+#include <SPI.h>
 
 class MP3Decoder{
     public:
-        MP3Decoder(VS1053 *_player){
+        MP3Decoder(){
             volumePercent = 95;
-            player = _player;
+            VS1053 _player(32,33,35);
+            player = &_player;
+            
+        }
+
+        void begin(){
+            SPI.begin();
+            Serial.println("Begin with VS1053");
             player->begin();
+            Serial.println("Switching to MP3");
             player->switchToMp3Mode();
+            Serial.println("Setting volume");
             player->setVolume(volumePercent);
         }
 

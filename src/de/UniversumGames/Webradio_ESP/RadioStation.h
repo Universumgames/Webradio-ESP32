@@ -103,7 +103,7 @@ class RadioStation{
 
         void playMP3Stream(){
 
-            while (playBool && connected)
+            if (playBool && connected)
             {
                 uint8_t buffer[32];
                if(client.available() > 0){

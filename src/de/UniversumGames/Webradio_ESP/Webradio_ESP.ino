@@ -36,8 +36,7 @@
 #define SPI_SCK 18   
 #define SPI_MISO 19 
 #define SPI_MOSI 23 
-VS1053 player(32, 33, 35);
-MP3Decoder decoder(&player);
+MP3Decoder decoder;
 
 
 
@@ -165,6 +164,10 @@ void connectToStation(int station){
   #endif
 
     wifiMulti.addAP(ssid1, pass1);
+    while(wifiMulti.run() != WL_CONNECTED){
+      delay(100);
+      Serial.print(".");
+    }
     if (wifiMulti.run() == WL_CONNECTED)
     {
       Serial.println("");
@@ -176,7 +179,7 @@ void connectToStation(int station){
 #ifdef SerialUSE
         USE_Serial.println("WiFi´s added");
   #endif
-
+    decoder.begin();
     connectToStation(0);
 
   #ifdef USE_Serial
