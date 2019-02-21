@@ -12,6 +12,6 @@ class URL{
         }
         String host;
         String path;
-        uint16_t port;
+        int port;
 };
 #endif

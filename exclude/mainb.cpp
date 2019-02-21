@@ -11,6 +11,8 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
+#include <esp_wifi.h>
+#include <HTTPClient.h>
 #include <WiFiMulti.h>
 #include "RadioStation.h"
 #include "RadioType.h"
@@ -145,6 +147,8 @@ void connectToStation(int station){
     USE_Serial.begin(9600);
     USE_Serial.println("Starting webradio");
   #endif
+
+  decoder.begin();
 #ifdef USE_BUTTON_INTERRUPTS
     #ifdef SerialUSE
       USE_Serial.println("Attaching interrupts");
@@ -164,9 +168,15 @@ void connectToStation(int station){
   #endif
 
     wifiMulti.addAP(ssid1, pass1);
-    while(wifiMulti.run() != WL_CONNECTED){
+    int times = 0;
+    while(wifiMulti.run() != WL_CONNECTED && times < 100){
       delay(100);
+      times++;
       Serial.print(".");
+    }
+
+    if(times > 100){
+      ESP.restart();
     }
     if (wifiMulti.run() == WL_CONNECTED)
     {
@@ -179,7 +189,7 @@ void connectToStation(int station){
 #ifdef SerialUSE
         USE_Serial.println("WiFi´s added");
   #endif
-    decoder.begin();
+    
     connectToStation(0);
 
   #ifdef USE_Serial
