@@ -2,14 +2,14 @@
 #define Webradio_h
 
 //#include <Arduino.h>
-#include <HTTPClient.h>
+//#include <HTTPClient.h>
 #include <WiFiClient.h>
 #include <SPI.h>
 #include <WiFi.h>
 #include <esp_wifi.h>
 #include "VS1053.h"
-#include <EEPROM.h>
-#include "List.h"
+//#include <EEPROM.h>
+//#include "List.h"
 #include "Radiostation.h"
 #include "URL.h"
 
@@ -32,7 +32,7 @@ class Webradio
         //currentStationId = EEPROM.readUInt(eepromStationIdAdr);
         Serial.println("adding station");
         addStation(Webradio_h::EinsLive);
-        Serial.println("spi");
+        /*Serial.println("spi");
         SPI.begin();
         delay(100);
         Serial.println("player begin");
@@ -40,7 +40,7 @@ class Webradio
         Serial.println("mp3 mode");
         player->switchToMp3Mode();
         Serial.println("volume");
-        player->setVolume(volume);
+        player->setVolume(volume);*/
     }
 
     void initPlaying()
@@ -148,13 +148,14 @@ class Webradio
 
     void core0Loop()
     {
+        uint8_t buffer[32];
         if (client.available() > 0 && client.connected() && playBool)
         {
             size_t read = client.read(buffer, 32);
             player->playChunk(buffer, read);
         }
     }
-
+    WiFiClient client;
   private:
     const int eepromVolumeAdr = 0;
     const int eepromStationIdAdr = 1;
@@ -165,10 +166,9 @@ class Webradio
     VS1053 *player;
     Radiostation currentStation;
     int currentStationId = 0;
-    uint8_t buffer[32];
     Radiostation *stations;
     int stationssize = 0;
-    WiFiClient client;
+    
     //HTTPClient httpclient;
     
 

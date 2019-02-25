@@ -15,62 +15,41 @@
 #define ssid1 WiFiVariables::_ssid
 #define pass1 WiFiVariables::_password
 
-VS1053 player(32, 33, 35);
 Radiostation stations[] = {Webradio_h::EinsLive};
+VS1053 player(32, 33, 35);
 Webradio webradio;
-
-TaskHandle_t core0;
 
 void connectToWiFi(){
     WiFi.begin(ssid1, pass1);
     int i = 0;
-    while (WiFi.status() != WL_CONNECTED && i < 20)
+    while (WiFi.status() != WL_CONNECTED && i < 5)
     {
         delay(500);
         Serial.print(".");
         i++;
     }
-    if(i>= 20) ESP.restart();
+    if(i>= 5) ESP.restart();
     Serial.println("");
     Serial.println("WiFi connected");
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
 }
 
-void secondLoop(void * parameter)
-{
-    while(true){
-        //webradio.core0Loop();
-    }
-}
-
-void initSecondCore(){
-    xTaskCreatePinnedToCore(
-        secondLoop,
-        "Player",
-        10000,
-        NULL,
-        0,
-        &core0,
-        0);
-}
+WiFiClient client;
 
 void setup(){
     Serial.begin(9600);
 
-    delay(500);
     Serial.println();
 
-    Serial.println("second core");
-    //initSecondCore();
     SPI.begin();
+    player.begin();
+    player.switchToMp3Mode();
+    player.setVolume(95);
     
     Serial.println("init");
     webradio.begin(&player);
-    /*Serial.println("add stations");
-    for(int i = 0; i < sizeof(stations); i++){
-        webradio.addStation(stations[i]);
-    }*/
+    
     Serial.println("init");
     webradio.init();
     
