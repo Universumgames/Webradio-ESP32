@@ -5,13 +5,25 @@
 
 class URL{
     public:
-        URL(String _host, String _path, int _port){
+        URL(){}
+        URL(const char *_host, const char *_path, uint16_t _port){
             host = _host;
             path = _path;
             port = _port;
         }
-        String host;
-        String path;
-        uint16_t port;
+        const char *host;
+        const char *path = "";
+        uint16_t port = 0;
+
+        void println(){
+            Serial.print(host);
+            Serial.print(path);
+            Serial.print(":");
+            Serial.println(String(port));
+        }
+
+        bool isNotDefined(){
+            return host == "";
+        }
 };
 #endif

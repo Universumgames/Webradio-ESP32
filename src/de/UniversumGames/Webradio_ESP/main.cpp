@@ -1,36 +1,46 @@
 #include <Arduino.h>
+#include <VS1053.h>
 #include <WiFi.h>
+#include <esp_wifi.h>
+#include <SPI.h>
 #include "WiFiVariables.h"
 #include "Webradio.h"
-#include <VS1053.h>
+#include "Radiostation.h"
+#include "RadioType.h"
 #include <SPI.h>
+#include "VS1053.h"
+#include "URL.h"
+#include <WiFiClient.h>
 
 #define ssid1 WiFiVariables::_ssid
 #define pass1 WiFiVariables::_password
 
-Webradio webradio  = Webradio_h::webradio;
+VS1053 player(32, 33, 35);
+Radiostation stations[] = {Webradio_h::EinsLive};
+Webradio webradio;
+
 TaskHandle_t core0;
 
 void connectToWiFi(){
     WiFi.begin(ssid1, pass1);
     int i = 0;
-    while (WiFi.status() != WL_CONNECTED && i < 200)
+    while (WiFi.status() != WL_CONNECTED && i < 20)
     {
-        delay(100);
+        delay(500);
         Serial.print(".");
         i++;
     }
-    if(i>= 200) ESP.restart();
+    if(i>= 20) ESP.restart();
     Serial.println("");
     Serial.println("WiFi connected");
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
 }
 
-void secondLoop(void *parameter)
+void secondLoop(void * parameter)
 {
     while(true){
-        webradio.core0Loop();
+        //webradio.core0Loop();
     }
 }
 
@@ -48,9 +58,19 @@ void initSecondCore(){
 void setup(){
     Serial.begin(9600);
 
+    delay(500);
+    Serial.println();
+
     Serial.println("second core");
-    initSecondCore();
+    //initSecondCore();
+    SPI.begin();
     
+    Serial.println("init");
+    webradio.begin(&player);
+    /*Serial.println("add stations");
+    for(int i = 0; i < sizeof(stations); i++){
+        webradio.addStation(stations[i]);
+    }*/
     Serial.println("init");
     webradio.init();
     
@@ -62,5 +82,6 @@ void setup(){
 }
 
 void loop(){
-
+    webradio.core0Loop();
 }
+

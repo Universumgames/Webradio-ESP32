@@ -7,12 +7,13 @@
 
 class Radiostation{
     public:
+        Radiostation(){}
         Radiostation(URL _url, RadioType _type){
-            url = &_url;
+            url = _url;
             type = _type;
         }
 
-        URL *getURL(){
+        URL getURL(){
             return url;
         }
 
@@ -20,9 +21,7 @@ class Radiostation{
             return type;
         }
     private:
-        URL *url;
+        URL url;
         RadioType type;
 };
-
-extern Radiostation EinsLive(URL("dg-wdr-http-dus-dtag-cdn.cast.addradio.de", "/wdr/1live/live/mp3/128/stream.mp3", 80), MP3Stream);
 #endif

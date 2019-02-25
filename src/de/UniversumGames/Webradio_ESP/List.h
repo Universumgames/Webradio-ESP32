@@ -9,11 +9,13 @@
 template <typename T>
 class List{
     public:
-        List();
+        List(){
+            
+        }
 
         T *get(int i){
             toFirst();
-            for(;i>0; i--){
+            for(int a = 0;a<i; a++){
                 next();
             }
             if(hasAccess()){
@@ -58,18 +60,13 @@ class List{
         int length = 0;
 
         void toFirst(){
-            if(!isEmpty()){
-                current = head;
-            }
+            current = head;
         }
 
-        ListNode *next(){
-            if (current != NULL && current->next != NULL)
+        void next(){
+            if (hasAccess())
             {
                 current = current->next;
-                return current;
-            }else{
-                return head;
             }
         }
 
@@ -79,6 +76,7 @@ class List{
             if(!isEmpty()){
                 node->previous = tail;
                 tail->next = node;
+                tail = node;
             }else{
                 head = node;
                 tail = node;
