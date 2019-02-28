@@ -132,6 +132,7 @@ class Webradio
     void pause()
     {
         playBool = false;
+        disconnect();
     }
 
     void addStation(Radiostation station)
@@ -155,7 +156,17 @@ class Webradio
             player->playChunk(buffer, read);
         }
     }
-    WiFiClient client;
+
+    void playpause(){
+        if(playBool){
+            Serial.println("pause");
+            pause();
+        }else{
+            Serial.println("play");
+            play();
+        }
+    }
+    
   private:
     const int eepromVolumeAdr = 0;
     const int eepromStationIdAdr = 1;
@@ -168,6 +179,7 @@ class Webradio
     int currentStationId = 0;
     Radiostation *stations;
     int stationssize = 0;
+    WiFiClient client;
     
     //HTTPClient httpclient;
     
@@ -188,6 +200,7 @@ class Webradio
         //const int length = currentStation->getURL()->host.length();
         //char *array;
         //currentStation->getURL()->host.toCharArray(array, length);
+        disconnect();
         currentStation = Webradio_h::EinsLive;
 
         const char *host = currentStation.getURL().host;
@@ -221,8 +234,10 @@ class Webradio
 
     void disconnect()
     {
-        client.stop();
+        if(client.connected()) client.stop();
         connected = false;
+        initPlay = false;
+        playBool = false;
     }
 
     bool ItemisNull(Radiostation *station){

@@ -15,9 +15,44 @@
 #define ssid1 WiFiVariables::_ssid
 #define pass1 WiFiVariables::_password
 
+#define volume_UP 17
+#define volume_DOWN 16
+#define station_NEXT 2
+#define station_PRE 4
+#define play_pause 0
+
 Radiostation stations[] = {Webradio_h::EinsLive};
 VS1053 player(32, 33, 35);
 Webradio webradio;
+
+void playpause(){
+    Serial.println("playpause");
+    webradio.playpause();
+}
+
+void volumeUp()
+{
+    Serial.println("up");
+    webradio.volumeUp();
+}
+
+void volumeDown()
+{
+    Serial.println("down");
+    webradio.volumeDown();
+}
+
+void stationNext()
+{
+    Serial.println("next");
+    webradio.nextStation();
+}
+
+void stationPre()
+{
+    Serial.println("pre");
+    webradio.previousStation();
+}
 
 void connectToWiFi(){
     WiFi.begin(ssid1, pass1);
@@ -35,32 +70,61 @@ void connectToWiFi(){
     Serial.println(WiFi.localIP());
 }
 
-WiFiClient client;
+void buttonInterruptRead(){
+    if(digitalRead(play_pause)){
+        playpause();
+    }
+    /*if(digitalRead(station_NEXT)){
+        stationNext();
+    }
+    if(digitalRead(stationPre)){
+        stationPre();
+    }*/
+    if(digitalRead(volume_UP)){
+        volumeUp();
+    }
+    if(digitalRead(volume_DOWN)){
+        volumeDown();
+    }
+}
+
 
 void setup(){
     Serial.begin(9600);
 
     Serial.println();
+    Serial.println("Starting webradio");
 
+    Serial.println("Init \"Interrupts\"");
+    pinMode(play_pause, INPUT_PULLDOWN);
+    pinMode(station_NEXT, INPUT_PULLDOWN);
+    pinMode(station_PRE, INPUT_PULLDOWN);
+    pinMode(volume_UP, INPUT_PULLDOWN);
+    pinMode(volume_DOWN, INPUT_PULLDOWN);
+    Serial.println("Interrupts initialized");
+
+    Serial.println("Init Decoder");
     SPI.begin();
     player.begin();
     player.switchToMp3Mode();
     player.setVolume(95);
-    
-    Serial.println("init");
+
     webradio.begin(&player);
-    
-    Serial.println("init");
     webradio.init();
+    Serial.println("Decoder initialized");
     
-    Serial.println("WIFI");
+    Serial.println("Connect to WIFI");
     connectToWiFi();
 
-    Serial.println("Play"); 
+    Serial.println("Start playing"); 
     webradio.play();
 }
 
 void loop(){
     webradio.core0Loop();
+    //buttonInterruptRead();
 }
+
+
+
 
