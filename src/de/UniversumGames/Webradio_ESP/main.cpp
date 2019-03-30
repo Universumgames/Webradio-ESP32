@@ -15,43 +15,78 @@
 #define ssid1 WiFiVariables::_ssid
 #define pass1 WiFiVariables::_password
 
-#define volume_UP 17
-#define volume_DOWN 16
-#define station_NEXT 2
-#define station_PRE 4
-#define play_pause 0
+#define volume_UP 16
+#define volume_DOWN 17
+#define station_NEXT 21
+#define station_PRE 15
+#define play_pause 5
 
 Radiostation stations[] = {Webradio_h::EinsLive};
 VS1053 player(32, 33, 35);
 Webradio webradio;
 
+bool play = false;
+bool up = false;
+bool down = false;
+bool next = false;
+bool pre = false;
+int volume = 50;
+
+long lasthandle = 0;
+
 void playpause(){
     Serial.println("playpause");
-    webradio.playpause();
+    play = true;
 }
 
 void volumeUp()
 {
     Serial.println("up");
-    webradio.volumeUp();
+    up = true;
 }
 
 void volumeDown()
 {
     Serial.println("down");
-    webradio.volumeDown();
+    down = true;
 }
 
 void stationNext()
 {
     Serial.println("next");
-    webradio.nextStation();
+    next = true;
 }
 
 void stationPre()
 {
     Serial.println("pre");
-    webradio.previousStation();
+    pre = true;
+}
+
+void handlePresses(){
+    if(millis() - lasthandle > 300){
+    if(play){
+        play = false;
+        webradio.playpause();
+    }else if(up){
+        up = false;
+        volume += 2;
+        player.setVolume(volume);
+        Serial.println("upped");
+    }else if(down){
+        down = false;
+        volume-=2;
+        player.setVolume(volume);
+        Serial.println("downed");
+    }else if(next){
+        next = false;
+        webradio.nextStation();
+    }else if(pre){
+        pre = false;
+        webradio.previousStation();
+    }
+    lasthandle = millis();
+    }
 }
 
 void connectToWiFi(){
@@ -71,21 +106,35 @@ void connectToWiFi(){
 }
 
 void buttonInterruptRead(){
-    if(digitalRead(play_pause)){
-        playpause();
-    }
-    /*if(digitalRead(station_NEXT)){
-        stationNext();
-    }
-    if(digitalRead(stationPre)){
-        stationPre();
-    }*/
-    if(digitalRead(volume_UP)){
-        volumeUp();
-    }
-    if(digitalRead(volume_DOWN)){
-        volumeDown();
-    }
+    //if(lastButtonPress + 200 < millis()){
+        bool pressed = false;
+        if(digitalRead(play_pause)){
+            playpause();
+            pressed = true;
+        }
+        /*if(digitalRead(station_NEXT)){
+            stationNext();
+            pressed = true;
+        }
+        if(digitalRead(stationPre)){
+            stationPre();
+            pressed = true;
+        }*/
+        if(digitalRead(volume_UP)){
+            volumeUp();
+            pressed = true;
+        }
+        if(digitalRead(volume_DOWN)){
+            volumeDown();
+            pressed = true;
+        }
+        /*if(pressed){
+            lastButtonPress = millis();
+            webradio.pause();
+            webradio.play();
+        }*/
+    //}
+
 }
 
 
@@ -101,13 +150,19 @@ void setup(){
     pinMode(station_PRE, INPUT_PULLDOWN);
     pinMode(volume_UP, INPUT_PULLDOWN);
     pinMode(volume_DOWN, INPUT_PULLDOWN);
+    attachInterrupt(play_pause, playpause, RISING);
+    attachInterrupt(station_NEXT, stationNext, RISING);
+    attachInterrupt(station_PRE, stationPre, RISING);
+    attachInterrupt(volume_UP, volumeUp, RISING);
+    attachInterrupt(volume_DOWN, volumeDown, RISING);
     Serial.println("Interrupts initialized");
 
     Serial.println("Init Decoder");
     SPI.begin();
     player.begin();
-    player.switchToMp3Mode();
     player.setVolume(95);
+    player.switchToMp3Mode();
+    
 
     webradio.begin(&player);
     webradio.init();
@@ -118,11 +173,13 @@ void setup(){
 
     Serial.println("Start playing"); 
     webradio.play();
+
+    lasthandle = millis();
 }
 
 void loop(){
     webradio.core0Loop();
-    //buttonInterruptRead();
+    handlePresses();
 }
 
 

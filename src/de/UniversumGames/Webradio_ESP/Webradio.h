@@ -8,7 +8,7 @@
 #include <WiFi.h>
 #include <esp_wifi.h>
 #include "VS1053.h"
-//#include <EEPROM.h>
+#include <EEPROM.h>
 //#include "List.h"
 #include "Radiostation.h"
 #include "URL.h"
@@ -28,7 +28,7 @@ class Webradio
 
     void init()
     {
-        //volume = EEPROM.readInt(eepromVolumeAdr);
+        volume = EEPROM.readInt(eepromVolumeAdr);
         //currentStationId = EEPROM.readUInt(eepromStationIdAdr);
         Serial.println("adding station");
         addStation(Webradio_h::EinsLive);
@@ -50,18 +50,18 @@ class Webradio
 
     void volumeUp()
     {
-        if (volume < 100)
+        if (volume < 96)
         {
-            volume++;
+            volume+=4;
         }
         updateVolume();
     }
 
     void volumeDown()
     {
-        if (volume > 0)
+        if (volume > 4)
         {
-            volume--;
+            volume-=4;
         }
         updateVolume();
     }
@@ -126,6 +126,7 @@ class Webradio
         {
             initPlaying();
         }
+        connect();
         playBool = true;
     }
 
@@ -166,6 +167,10 @@ class Webradio
             play();
         }
     }
+
+    int getVolume(){
+        return volume;
+    }
     
   private:
     const int eepromVolumeAdr = 0;
@@ -186,8 +191,11 @@ class Webradio
 
     void updateVolume()
     {
-        //EEPROM.writeInt(eepromVolumeAdr, volume);
+        EEPROM.writeInt(eepromVolumeAdr, volume);
+        //ESP.restart();
+        pause();
         player->setVolume(volume);
+        play();
     }
 
     void updateStationId()
@@ -197,9 +205,6 @@ class Webradio
 
     void connect()
     {
-        //const int length = currentStation->getURL()->host.length();
-        //char *array;
-        //currentStation->getURL()->host.toCharArray(array, length);
         disconnect();
         currentStation = Webradio_h::EinsLive;
 
@@ -207,15 +212,7 @@ class Webradio
         const char *path = currentStation.getURL().path;
         uint16_t port = currentStation.getURL().port;
         Serial.println("connect");
-        /*httpclient.begin(client,"http://" + String(host) + ":" + String(port) + String(path));
-        if(httpclient.GET() == HTTP_CODE_OK){
-            connected = true;
-            playBool = true;
-            client = httpclient.getStream();
-            Serial.println("connected");
-        }else{
-            Serial.println("not connected");
-        }*/
+        
         if (client.connect(host, port))
         {
             connected = true;

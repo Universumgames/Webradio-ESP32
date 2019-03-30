@@ -12,21 +12,21 @@ class Queue{
     public:
         Queue();
         void enqueue(T data){
-                Node *newNode;
-                newNode->data = data;
+                Node newNode;
+                newNode.data = data;
                 //newNode->next = NULL;
                 if(head == NULL){
-                    head = newNode;
-                    tail = newNode;
+                    head = &newNode;
+                    tail = &newNode;
                 }else{
-                    tail->next = newNode;
+                    tail->next = &newNode;
                 }
                 size++;
         }
         void dequeue(){
             if(head == tail){
                 head = NULL;
-                tail == NULL;
+                //tail == NULL;
             }else if(head != NULL){
                 head = head->next;
             }
